@@ -381,6 +381,30 @@ module LaunchDarkly
       find_weight_match(feature, param)
     end
 
+    def add_user_override(key, user, value)
+      log_timings('add_user_override') do
+        res = @client.put("#{@config.base_uri}/api/users/#{user[:key]}/features/#{key}") do |req|
+          req.headers['Authorization'] = "api_key #{@api_key}"
+          req.headers['User-Agent'] = "RubyClient/#{LaunchDarkly::VERSION}"
+          req.headers['Content-Type'] = 'application/json'
+          req.body = {setting: value}.to_json
+          req.options.timeout = @config.read_timeout
+          req.options.open_timeout = @config.connect_timeout
+        end
+      end
+
+      if res.status == 401
+        @config.logger.error("[LDClient] Invalid API key")
+      end
+
+      if res.status / 100 != 2
+        @config.logger.error("[LDClient] Unexpected status code #{res.status}")
+        return false
+      end
+
+      return true
+    end
+
     def log_timings(label, &block)
       return block.call unless @config.log_timings? && @config.logger.debug?
       res = nil
