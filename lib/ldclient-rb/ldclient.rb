@@ -31,7 +31,7 @@ module LaunchDarkly
       @api_key = api_key
       @config = config
       @client = Faraday.new do |builder|
-        builder.use :http_cache, store: @config.store
+        builder.use :http_cache, store: @config.store, serializer: Marshal
 
         builder.adapter :net_http_persistent
       end
