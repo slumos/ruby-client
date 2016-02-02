@@ -382,8 +382,8 @@ module LaunchDarkly
     end
 
     def add_user_override(key, user, value)
-      log_timings('add_user_override') do
-        res = @client.put("#{@config.base_uri}/api/users/#{user[:key]}/features/#{key}") do |req|
+      res = log_timings('add_user_override') do
+        @client.put("#{@config.base_uri}/api/users/#{user[:key]}/features/#{key}") do |req|
           req.headers['Authorization'] = "api_key #{@api_key}"
           req.headers['User-Agent'] = "RubyClient/#{LaunchDarkly::VERSION}"
           req.headers['Content-Type'] = 'application/json'
